@@ -1,0 +1,14 @@
+{
+  "name": "tsengine",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "author": "Sam Lynch",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "css-loader": "^3.2.0",
+    "pixi.js": "^5.1.5",
+    "style-loader": "^1.0.0",
+    "ts-loader": "^6.2.0",
+    "typescript": "^3.7.2"
+  }
+}
