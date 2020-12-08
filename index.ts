@@ -15,7 +15,7 @@ export { NODE } from "./engine/ModularPathFinding/Node";
 export { PathAlgo } from "./engine/ModularPathFinding/PathAlgo";
 export { BreadthFirst } from "./engine/ModularPathFinding/BreadthFirst/BreadthFirst";
 
-export { Container } from "./engine/Components/Container";
+export { ContainerComponent } from "./engine/Components/ContainerComponent";
 export { Sprite } from "./engine/Components/Sprite";
 export { Transform } from "./engine/Components/Transform";
 // export { Enemy } from "./engine/Components/Enemy";

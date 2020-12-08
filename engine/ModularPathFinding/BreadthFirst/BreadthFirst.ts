@@ -1,6 +1,6 @@
-import {PathAlgo} from "../PathAlgo";
-import {NODE} from "../Node";
-import {Vec2} from "../../Types/Vec2";
+import { PathAlgo } from "../PathAlgo";
+import { NODE } from "../Node";
+import { Vec2 } from "../../Types/Vec2";
 
 export class BreadthFirst extends PathAlgo {
     constructor() {

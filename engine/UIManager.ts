@@ -1,19 +1,18 @@
 import { Engine } from "./Engine";
-import {GameObject} from "./GameObject";
-import {HelperFunctions} from "./HelperFunctions";
-import {Container as PIXIContainer, Renderer, DisplayObject} from "pixi.js";
+import { GameObject } from "./GameObject";
+import { HelperFunctions } from "./HelperFunctions";
+import { Container as PIXIContainer, DisplayObject, Renderer } from "pixi.js";
 
 export class UIManager {
 
+    public readonly width: number;
+    public readonly height: number;
     private canvasElement: HTMLCanvasElement;
     private renderer: Renderer;
     private stage: PIXIContainer;
     private engine: Engine;
     private changeDetected: boolean = false;
     private sceneObjects: unknown[] = [];
-
-    public readonly width: number;
-    public readonly height: number;
 
     constructor(_engine: Engine) {
         this.engine = _engine;
@@ -39,7 +38,7 @@ export class UIManager {
 
     public removeObject(obj: DisplayObject | GameObject): void {
         const index: number = this.sceneObjects.indexOf(obj);
-        if(index === -1) {
+        if (index === -1) {
             throw new Error("Failed to find object!");
         } else {
             HelperFunctions.removeFromStage(this.stage, obj);
@@ -61,7 +60,7 @@ export class UIManager {
             HelperFunctions.addToStage(this.stage, obj);
             this.sceneObjects.push(obj);
             this.changeDetected = true;
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
     }
@@ -77,22 +76,22 @@ export class UIManager {
         this.changeDetected = true;
     }
 
-    private _update(): void {
-        this.renderer.render(this.stage);
-        this.changeDetected = false;
-    }
-
     public onStep(): void {
-        for(let i: number = this.sceneObjects.length - 1; i >= 0; --i) {
+        for (let i: number = this.sceneObjects.length - 1; i >= 0; --i) {
             const child: unknown = this.sceneObjects[i];
-            if(child instanceof GameObject && (child as GameObject).isQueuedForDestruction()) {
-                this.sceneObjects = this.sceneObjects.splice(i,1);
+            if (child instanceof GameObject && (child as GameObject).isQueuedForDestruction()) {
+                this.sceneObjects = this.sceneObjects.splice(i, 1);
                 this.changeDetected = true;
             }
         }
         // nyet
-        if(this.changeDetected) {
+        if (this.changeDetected) {
             this._update();
         }
+    }
+
+    private _update(): void {
+        this.renderer.render(this.stage);
+        this.changeDetected = false;
     }
 }

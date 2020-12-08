@@ -1,5 +1,5 @@
-import {NODE} from "./Node";
-import {Vec2} from "../Types/Vec2";
+import { NODE } from "./Node";
+import { Vec2 } from "../Types/Vec2";
 
 // tslint:disable-next-line:max-classes-per-file
 export abstract class PathAlgo {
@@ -53,7 +53,7 @@ export abstract class PathAlgo {
         while (!endreached) {
             const temp: NODE = current;
             // temp.parent = null;
-            if(temp) {
+            if (temp) {
                 result.push(new NODE(temp.x, temp.y, false));
             }
             if (!((current || {}).parent)) {

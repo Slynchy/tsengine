@@ -1,14 +1,13 @@
-import {Component} from "../Component";
+import { Component } from "../Component";
 import { Container as PIXIContainer, DisplayObject } from "pixi.js";
-import {Sprite} from "./Sprite";
-import {GameObject} from "../GameObject";
-import {HelperFunctions} from "../HelperFunctions";
+import { GameObject } from "../GameObject";
+import { HelperFunctions } from "../HelperFunctions";
 
 /**
  * There is no Transform component; if an object needs a transform, it likely needs to
  * render as well anyway.
  */
-export class Container extends Component {
+export class ContainerComponent extends Component {
 
     private _container: PIXIContainer;
 
@@ -17,20 +16,12 @@ export class Container extends Component {
         this._container = new PIXIContainer();
     }
 
-    public addChild(_child: GameObject | DisplayObject): void {
-        HelperFunctions.addToStage(this._container, _child);
-    }
-
     public get alpha(): number {
         return this._container.alpha;
     }
 
     public set alpha(_alpha: number) {
         this._container.alpha = _alpha;
-    }
-
-    public getContainer(): PIXIContainer {
-        return this._container;
     }
 
     public get x(): number {
@@ -49,6 +40,14 @@ export class Container extends Component {
         this._container.y = _y;
     }
 
+    public addChild(_child: GameObject | DisplayObject): void {
+        HelperFunctions.addToStage(this._container, _child);
+    }
+
+    public getContainer(): PIXIContainer {
+        return this._container;
+    }
+
     public onAwake(): void {
 
     }
@@ -58,7 +57,7 @@ export class Container extends Component {
     }
 
     public destroy(): void {
-        if(this._container.parent) {
+        if (this._container.parent) {
             this._container.parent.removeChild(this._container);
         }
         this._container.destroy({children: true});

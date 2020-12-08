@@ -1,4 +1,4 @@
-import {Vec2} from "../Types/Vec2";
+import { Vec2 } from "../Types/Vec2";
 
 const DEFAULT_MOVE_COST: number = 1.0;
 

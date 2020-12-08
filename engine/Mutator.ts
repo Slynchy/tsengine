@@ -1,6 +1,8 @@
-import {State} from "./State";
+import { State } from "./State";
 
 export abstract class Mutator {
-  constructor() {}
-  public abstract apply(_state: State): void;
+    constructor() {
+    }
+
+    public abstract apply(_state: State): void;
 }

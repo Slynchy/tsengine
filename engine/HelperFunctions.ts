@@ -1,12 +1,11 @@
-import {GameObject} from "./GameObject";
-import {DisplayObject, Container as PIXIContainer, Graphics, Text, TextMetrics, TextStyle, Sprite as PIXISprite} from "pixi.js";
-import {Sprite} from "./Components/Sprite";
-import {Container} from "./Components/Container";
-import {UIManager} from "./UIManager";
-import {InputManager} from "./InputManager";
-import {Transform} from "./Components/Transform";
-import {Vec2} from "./Types/Vec2";
-import {InteractionEvent} from "./Types/InteractionEvent";
+import { GameObject } from "./GameObject";
+import { Container as PIXIContainer, DisplayObject, Sprite as PIXISprite } from "pixi.js";
+import { Sprite } from "./Components/Sprite";
+import { ContainerComponent } from "./Components/ContainerComponent";
+import { InteractionEvent } from "./Types/InteractionEvent";
+import { Container } from "./Container";
+import { Mesh } from "./Components/Mesh";
+import { DBGLines3D } from "./Debug/DBGLines3D";
 
 const DEBUG_MODE: boolean = false;
 
@@ -25,48 +24,55 @@ export class HelperFunctions {
         throw new Error("HelperFunctions class is intended to be static; no instances!");
     }
 
-    public static removeFromStage(stage: PIXIContainer, obj: DisplayObject | GameObject, unsafe?: boolean): void {
-        if(unsafe || HelperFunctions.isDisplayObject(obj)) {
+    public static removeFromStage(stage: Container, obj: DisplayObject | GameObject, unsafe?: boolean): void {
+        if (unsafe || HelperFunctions.isDisplayObject(obj)) {
             stage.removeChild(obj as DisplayObject);
-        } else if(HelperFunctions.isGameObject(obj)
-        ) {
-            if((obj as GameObject).hasComponent(Sprite)) {
+        } else if (HelperFunctions.isGameObject(obj)) {
+            if ((obj as GameObject).hasComponent(Sprite)) {
                 const sprite: PIXISprite = ((obj as GameObject).getComponent(Sprite) as Sprite).getSpriteObj();
-                if(sprite) stage.removeChild(sprite);
-            } else if((obj as GameObject).hasComponent(Container)) {
+                if (sprite) stage.removeChild(sprite);
+            } else if ((obj as GameObject).hasComponent(ContainerComponent)) {
                 const container: PIXIContainer
-                    = ((obj as GameObject).getComponent(Container) as Container).getContainer();
-                if(container) stage.removeChild(container);
+                    = ((obj as GameObject).getComponent(ContainerComponent) as ContainerComponent).getContainer();
+                if (container) stage.removeChild(container);
+            } else if ((obj as GameObject).hasComponent(Mesh)) {
+                // @ts-ignore
+                (stage.removeChild || stage.remove)((obj as GameObject).getComponent(Mesh).getMesh());
             } else {
                 throw new Error("GameObject must have Sprite or Container component to be added to scene!");
             }
-        } else if(!unsafe) {
+        } else if (!unsafe) {
             throw new Error("Invalid object attempted to add to scene");
         }
     }
 
-    public static addToStage(stage: PIXIContainer, obj: DisplayObject | GameObject, unsafe?: boolean): void {
-        if(unsafe || HelperFunctions.isDisplayObject(obj)) {
+    public static addToStage(stage: Container, obj: DisplayObject | GameObject, unsafe?: boolean): void {
+        if (unsafe || HelperFunctions.isDisplayObject(obj)) {
             stage.addChild(obj as DisplayObject);
-        } else if(HelperFunctions.isGameObject(obj)
-        ) {
-            if((obj as GameObject).hasComponent(Sprite)) {
+        } else if (HelperFunctions.isGameObject(obj)) {
+            if ((obj as GameObject).hasComponent(Sprite)) {
                 const sprite: PIXISprite = ((obj as GameObject).getComponent(Sprite) as Sprite).getSpriteObj();
-                if(sprite) stage.addChild(sprite);
-            } else if((obj as GameObject).hasComponent(Container)) {
+                if (sprite) stage.addChild(sprite);
+            } else if ((obj as GameObject).hasComponent(ContainerComponent)) {
                 const container: PIXIContainer
-                    = ((obj as GameObject).getComponent(Container) as Container).getContainer();
-                if(container) stage.addChild(container);
+                    = ((obj as GameObject).getComponent(ContainerComponent) as ContainerComponent).getContainer();
+                if (container) stage.addChild(container);
+            } else if ((obj as GameObject).hasComponent(Mesh)) {
+                // @ts-ignore
+                (stage.addChild || stage.add).apply(stage, [((obj as GameObject).getComponent(Mesh).getMesh())]);
+            } else if ((obj as GameObject).hasComponent(DBGLines3D)) {
+                // @ts-ignore
+                (stage.addChild || stage.add).apply(stage, [((obj as GameObject).getComponent(DBGLines3D).getLine())]);
             } else {
                 throw new Error("GameObject must have Sprite or Container component to be added to scene!");
             }
-        } else if(!unsafe) {
+        } else if (!unsafe) {
             throw new Error("Invalid object attempted to add to scene");
         }
     }
 
     public static lerp(v0: number, v1: number, t: number): number {
-        return v0*(1-t)+v1*t;
+        return v0 * (1 - t) + v1 * t;
     }
 
     public static createInteractionEvent<T>(self: object, propKey: string): InteractionEvent<T> {
@@ -78,20 +84,20 @@ export class HelperFunctions {
                 return key;
             },
             remove: (prop: T | string): void => {
-                if(typeof prop === "string") {
+                if (typeof prop === "string") {
                     // @ts-ignore
-                    if(self[propKey][prop]) {
+                    if (self[propKey][prop]) {
                         // @ts-ignore
                         delete self[propKey][prop];
                         return;
                     }
                 } else {
                     // @ts-ignore
-                    for(const f in self[propKey]) {
+                    for (const f in self[propKey]) {
                         // @ts-ignore
-                        if(self[propKey].hasOwnProperty(f)) {
+                        if (self[propKey].hasOwnProperty(f)) {
                             // @ts-ignore
-                            if(self[propKey][f] === prop) {
+                            if (self[propKey][f] === prop) {
                                 // @ts-ignore
                                 delete self[propKey][f];
                                 return;

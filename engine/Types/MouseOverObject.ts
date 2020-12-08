@@ -1,5 +1,5 @@
-import {Vec2} from "./Vec2";
-import {MouseOverState} from "./MouseOverState";
+import { Vec2 } from "./Vec2";
+import { MouseOverState } from "./MouseOverState";
 
 export interface MouseOverObject {
     pos: Vec2;
