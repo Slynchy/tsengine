@@ -1,13 +1,14 @@
 import "../config/main.css";
 import { StateManager } from "./StateManager";
 import { State } from "./State";
-import { Loader } from "./Loader";
 import { LoaderResource, Texture } from "pixi.js";
 import { Camera as ThreeCamera } from "three";
 import { InputManager } from "./InputManager";
 import { UIManager } from "./UIManager";
 import { EngineModes } from "./Types/EngineModes";
 import { PIXIApplication } from "./Applications/PIXI";
+import { PIXILoader } from "./Loaders/PIXILoader";
+import { WASMLoader } from "./Loaders/WASMLoader";
 import { Application } from "./Application";
 import { Ticker } from "./Ticker";
 import { Renderer } from "./Renderer";
@@ -21,7 +22,8 @@ declare const window: Window & {
 export class Engine {
     private readonly application: Application;
     private readonly stateManager: StateManager;
-    private readonly loader: Loader;
+    private readonly loader: PIXILoader;
+    private readonly wasmloader: WASMLoader;
     private readonly inputManager: InputManager;
     private readonly uiManager: UIManager;
     private dt: number = 1;
@@ -40,9 +42,26 @@ export class Engine {
         this.inputManager = new InputManager(this);
         this.stateManager = new StateManager(this);
         this.uiManager = new UIManager(this);
-        this.loader = new Loader();
+        this.loader = new PIXILoader();
+        this.wasmloader = new WASMLoader();
         this.application.ticker.add((dt: number) => (this.deltaTime = dt));
         window.ENGINE = this;
+    }
+
+    public loadWASM(key: string, filepath: string | string[]): Promise<void> {
+        if(filepath && Array.isArray(filepath)) {
+            // todo handle multiple string input
+        } else {
+            this.wasmloader.add(key as string, filepath as string);
+        }
+
+        // todo: return an actual value
+        return this.wasmloader.load();
+    }
+
+    // tslint:disable-next-line:no-any
+    public getWASM(key: string): any | null {
+        return this.wasmloader.get(key) || null;
     }
 
     public getCamera(): ThreeCamera {
