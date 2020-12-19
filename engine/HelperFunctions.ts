@@ -6,6 +6,11 @@ import { InteractionEvent } from "./Types/InteractionEvent";
 import { Container } from "./Container";
 import { Mesh } from "./Components/Mesh";
 import { DBGLines3D } from "./Debug/DBGLines3D";
+import { Vec2 } from "./Types/Vec2";
+import { Component } from "./Component";
+import { Cache } from "three";
+import clear = Cache.clear;
+import { Engine } from "./Engine";
 
 const DEBUG_MODE: boolean = false;
 
@@ -18,6 +23,10 @@ export interface TooltipProperties {
     body: string;
     dontAddToUI?: boolean;
 }
+
+declare const window: Window & {
+    ENGINE: Engine;
+};
 
 export class HelperFunctions {
     constructor() {
@@ -60,7 +69,7 @@ export class HelperFunctions {
             } else if ((obj as GameObject).hasComponent(Mesh)) {
                 // @ts-ignore
                 (stage.addChild || stage.add).apply(stage, [((obj as GameObject).getComponent(Mesh).getMesh())]);
-            } else if ((obj as GameObject).hasComponent(DBGLines3D)) {
+            } else if ((obj as GameObject).hasComponent(DBGLines3D as unknown as Component)) {
                 // @ts-ignore
                 (stage.addChild || stage.add).apply(stage, [((obj as GameObject).getComponent(DBGLines3D).getLine())]);
             } else {
@@ -71,8 +80,76 @@ export class HelperFunctions {
         }
     }
 
+    public static async shakeObject(_target: Vec2, _iterations?: number): Promise<void> {
+        const iterations: number = _iterations || 30;
+        const origPos: Vec2 = {
+            // @ts-ignore
+            x: this.scene.stage.x, y: this.scene.stage.y
+        };
+        for(let n: number = 0; n < iterations; n++) {
+            await HelperFunctions.lerpToPromise(
+                _target,
+                {
+                    x: _target.x + ((Math.random() * 20)),
+                    y: _target.y + ((Math.random() * 20))
+                },
+                0.4,
+                window.ENGINE.getWASM("lerp").lerp
+            );
+            await HelperFunctions.lerpToPromise(
+                _target,
+                {
+                    x: origPos.x,
+                    y: origPos.y
+                },
+                0.4,
+                window.ENGINE.getWASM("lerp").lerp
+            );
+        }
+        _target.x = origPos.x;
+        _target.y = origPos.y;
+    }
+
     public static lerp(v0: number, v1: number, t: number): number {
         return v0 * (1 - t) + v1 * t;
+    }
+
+    public static lerpToPromise(
+        _sprite: Vec2,
+        _destination: Vec2,
+        _speed?: number,
+        _lerpFunc?: Function
+    ): Promise<void> {
+        const speed: number = _speed || 0.01;
+        const origPos: Vec2 = {
+            x: _sprite.x,
+            y: _sprite.y
+        };
+        const lerpFunc: Function = _lerpFunc || HelperFunctions.lerp;
+
+        return new Promise<void>( async (resolve: Function): Promise<void> => {
+            let progress: number = 0;
+            await new Promise((resolve2: Function): void => {
+                let intervalID: unknown;
+                intervalID = setInterval(() => {
+                    progress = Math.min(progress + _speed, 1);
+                    _sprite.x = lerpFunc(origPos.x, _destination.x, progress);
+                    _sprite.y = lerpFunc(origPos.y, _destination.y, progress);
+                    // @ts-ignore
+                    window._FORCE_UI_UPDATE();
+                    if(progress === 1) {
+                        // @ts-ignore
+                        clearInterval(intervalID);
+                        resolve2();
+                    }
+                }, 8);
+            });
+            _sprite.x =  _destination.x;
+            _sprite.y = _destination.y;
+            // @ts-ignore
+            window._FORCE_UI_UPDATE();
+            resolve();
+        });
     }
 
     public static createInteractionEvent<T>(self: object, propKey: string): InteractionEvent<T> {

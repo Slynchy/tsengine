@@ -1,5 +1,5 @@
 import { Component } from "../Component";
-import { Sprite as PIXISprite, Texture as PIXITexture } from "pixi.js";
+import { Sprite as PIXISprite, Texture as PIXITexture, Filter as PIXIFilter } from "pixi.js";
 
 /**
  * There is no Transform component; if an object needs a transform, it likely needs to
@@ -29,6 +29,27 @@ export class Sprite extends Component {
 
     public set y(_y: number) {
         this._sprite.y = _y;
+    }
+
+    public get width(): number {
+        return this._sprite.width;
+    }
+
+    public set width(_x: number) {
+        this._sprite.width = _x;
+    }
+
+    public get height(): number {
+        return this._sprite.height;
+    }
+
+    public set height(_y: number) {
+        this._sprite.height = _y;
+    }
+
+    public addFilter(filter: PIXIFilter): void {
+        if(!this._sprite.filters) this._sprite.filters = [];
+        this._sprite.filters.push(filter);
     }
 
     public getSpriteObj(): PIXISprite | null {

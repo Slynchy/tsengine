@@ -19,6 +19,8 @@ declare const window: Window & {
     ENGINE: Engine;
 };
 
+export let DELTA_TIME: number = 0;
+
 export class Engine {
     private readonly application: Application;
     private readonly stateManager: StateManager;

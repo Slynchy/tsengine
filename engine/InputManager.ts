@@ -14,6 +14,8 @@ export class InputManager {
 
     private registeredMouseOverObjects: { [uid: string]: MouseOverObject; } = {};
 
+    private currentState: { [uid: string]: boolean; } = {};
+
     constructor(_engine: Engine) {
         document.addEventListener("keydown", (e: KeyboardEvent) => this.onKeyDown(e));
         document.addEventListener("keyup", (e: KeyboardEvent) => this.onKeyUp(e));
@@ -296,7 +298,12 @@ export class InputManager {
         return eventIds;
     }
 
+    public isKeyDown(keycode: string | number): boolean {
+        return Boolean(this.currentState[keycode]);
+    }
+
     private onKeyDown(ev: KeyboardEvent): void {
+        this.currentState[ev.keyCode] = true;
         if (this.registeredDownEvents[ev.keyCode]) {
             for (const f in this.registeredDownEvents[ev.keyCode]) {
                 if (this.registeredDownEvents[ev.keyCode].hasOwnProperty(f)) {
@@ -307,6 +314,7 @@ export class InputManager {
     }
 
     private onKeyUp(ev: KeyboardEvent): void {
+        this.currentState[ev.keyCode] = false;
         if (this.registeredUpEvents[ev.keyCode]) {
             for (const f in this.registeredUpEvents[ev.keyCode]) {
                 if (this.registeredUpEvents[ev.keyCode].hasOwnProperty(f)) {
